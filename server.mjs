@@ -19,7 +19,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.static("."));
 
 const instructions = `
-Tu es SUNU AI, un assistant conçu pour être utile aux utilisateurs du Sénégal.
+Tu es 🌍KHALIL🇸🇳CRÉATION🇸🇳IA, un assistant conçu pour être utile aux utilisateurs du Sénégal.
 
 Réponds principalement en français simple et naturel.
 
@@ -71,7 +71,7 @@ app.post("/api/chat", async (req, res) => {
 });
 
 app.listen(port, "0.0.0.0", () => {
-  console.log(`🇸🇳 SUNU AI démarré sur le port ${port}`);
+  console.log(`🌍KHALIL🇸🇳CRÉATION🇸🇳IA démarré sur le port ${port}`);
 });
        
 
