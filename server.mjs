@@ -7,13 +7,15 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Connexion à Groq
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1"
 });
 
 app.use(express.json({ limit: "1mb" }));
 
-// Les fichiers index.html, etc. sont à la racine du projet
+// Les fichiers du site sont à la racine
 app.use(express.static("."));
 
 const instructions = `
@@ -49,7 +51,7 @@ app.post("/api/chat", async (req, res) => {
     }
 
     const response = await client.responses.create({
-      model: process.env.OPENAI_MODEL || "gpt-5.6-luna",
+      model: "openai/gpt-oss-20b",
       instructions,
       input: message,
       max_output_tokens: 900
@@ -60,15 +62,14 @@ app.post("/api/chat", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Erreur OpenAI :", error);
+    console.error("Erreur Groq :", error);
 
     res.status(500).json({
-      error: "SUNU AI n'a pas pu répondre. Vérifie la clé API et la connexion."
+      error: "SUNU AI n'a pas pu répondre. Vérifie la configuration de l'API."
     });
   }
 });
 
-// Render fournit automatiquement le port dans process.env.PORT
 app.listen(port, "0.0.0.0", () => {
   console.log(`🇸🇳 SUNU AI démarré sur le port ${port}`);
 });
