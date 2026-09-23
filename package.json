@@ -1,5 +1,5 @@
 {
-  "name": "sunu-ai-v1",
+  "name": "KHALIL-ai-v1",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -8,5 +8,6 @@
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "openai": "^6.0.0"
+    "multer": "^2.0.2"
   }
 }
