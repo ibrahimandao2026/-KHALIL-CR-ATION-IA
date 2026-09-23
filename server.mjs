@@ -82,7 +82,7 @@ app.post("/api/chat", async (req, res) => {
     console.error("Erreur Groq :", error);
 
     res.status(500).json({
-      error: "SUNU AI n'a pas pu répondre. Vérifie la configuration de l'API."
+      error: "khalil n'a pas pu répondre. Vérifie la configuration de l'API."
     });
   }
 });
