@@ -1,13 +1,15 @@
 {
-  "name": "KHALIL-ai-v1",
+  "name": "khalil-creation-ia",
   "version": "1.0.0",
-  "private": true,
+  "description": "KHALIL CRÉATION IA - Assistant intelligent sénégalais",
   "type": "module",
-  "scripts": {"start": "node server.mjs"},
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs"
+  },
   "dependencies": {
     "dotenv": "^16.4.7",
-    "express": "^5.1.0",
-    "openai": "^6.0.0"
-    "multer": "^2.0.2"
+    "express": "^4.21.2",
+    "openai": "^5.12.2"
   }
 }
