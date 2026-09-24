@@ -48,13 +48,13 @@ app.get("/api/status", (req, res) => {
 });
 
 // Clé OpenAI
-if (!process.env.OPENAI_API_KEY) {
-  console.error("OPENAI_API_KEY est absente.");
+if (!process.env.GROQ_API_KEY) {
+  console.error("GROQ_API_KEY est absente.");
   process.exit(1);
 }
 
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.GROQ_API_KEY
 });
 
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.6-luna";
