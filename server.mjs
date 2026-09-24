@@ -50,6 +50,7 @@ const upload = multer({
 app.use(express.json({ limit: "2mb" }));
 
 app.use(express.static(publicDir));
+app.use("/fond.jpg", express.static(path.join(__dirname, "fond.jpg")));
 
 app.use("/uploads", express.static(uploadDir));
 
