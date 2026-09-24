@@ -10,17 +10,31 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// =========================
+// CONFIGURATION GROQ
+// =========================
+
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
+
+// =========================
+// CHEMINS
+// =========================
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const publicDir = path.join(__dirname, "public");
 const uploadDir = path.join(__dirname, "uploads");
 
+// Créer uploads si nécessaire
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
+
+// =========================
+// UPLOAD FICHIERS
+// =========================
 
 const upload = multer({
   dest: uploadDir,
@@ -29,21 +43,40 @@ const upload = multer({
   }
 });
 
+// =========================
+// MIDDLEWARE
+// =========================
+
 app.use(express.json({ limit: "2mb" }));
-app.use(express.static(path.join(__dirname, "public")));
+
+app.use(express.static(publicDir));
+
 app.use("/uploads", express.static(uploadDir));
 
+// =========================
+// PAGE PRINCIPALE
+// =========================
+
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
+// =========================
+// TEST SERVEUR
+// =========================
+
 app.get("/api/health", (req, res) => {
-  res.json({
+  res.status(200).json({
     ok: true,
+    service: "KHALIL CRÉATION IA",
     groq_configured: Boolean(GROQ_API_KEY),
     model: GROQ_MODEL
   });
 });
+
+// =========================
+// CHAT IA
+// =========================
 
 app.post("/api/chat", async (req, res) => {
   try {
@@ -177,16 +210,23 @@ RÈGLES :
 - Ne demande jamais un mot de passe ou une clé API.
 `;
 
+    // =========================
+    // APPEL GROQ
+    // =========================
+
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${GROQ_API_KEY}`
         },
+
         body: JSON.stringify({
           model: GROQ_MODEL,
+
           messages: [
             {
               role: "system",
@@ -197,6 +237,7 @@ RÈGLES :
               content: message
             }
           ],
+
           temperature: 0.7,
           max_completion_tokens: 1500
         })
@@ -205,39 +246,60 @@ RÈGLES :
 
     const data = await response.json();
 
+    // =========================
+    // ERREUR GROQ
+    // =========================
+
     if (!response.ok) {
-      console.error("Erreur Groq :", JSON.stringify(data));
+      console.error(
+        "Erreur Groq :",
+        JSON.stringify(data)
+      );
+
       return res.status(502).json({
-        error: "Groq n'a pas pu répondre."
+        error:
+          data?.error?.message ||
+          "Groq n'a pas pu répondre."
       });
     }
+
+    // =========================
+    // RÉPONSE IA
+    // =========================
 
     const answer =
       data?.choices?.[0]?.message?.content?.trim() ||
       "Je n'ai pas reçu de réponse.";
 
-    res.json({
+    return res.json({
       answer: answer
     });
 
   } catch (error) {
-    console.error("Erreur serveur :", error);
 
-    res.status(500).json({
-      error: "Une erreur est survenue sur KHALIL CRÉATION IA."
+    console.error(
+      "Erreur serveur :",
+      error
+    );
+
+    return res.status(500).json({
+      error:
+        "Une erreur est survenue sur KHALIL CRÉATION IA."
     });
   }
 });
 
-/* =========================
-   ENVOI DE FICHIERS
-   ========================= */
+// =========================
+// ENVOI DE FICHIERS
+// =========================
 
 app.post(
   "/api/upload",
   upload.single("file"),
   (req, res) => {
+
     try {
+
       if (!req.file) {
         return res.status(400).json({
           error: "Aucun fichier reçu."
@@ -255,6 +317,7 @@ app.post(
       ];
 
       if (!allowed.includes(req.file.mimetype)) {
+
         fs.unlinkSync(req.file.path);
 
         return res.status(400).json({
@@ -262,9 +325,11 @@ app.post(
         });
       }
 
-      const extension = path.extname(req.file.originalname);
+      const extension =
+        path.extname(req.file.originalname);
 
-      const finalPath = req.file.path + extension;
+      const finalPath =
+        req.file.path + extension;
 
       fs.renameSync(
         req.file.path,
@@ -275,7 +340,7 @@ app.post(
         "/uploads/" +
         path.basename(finalPath);
 
-      res.json({
+      return res.json({
         success: true,
         filename: req.file.originalname,
         type: req.file.mimetype,
@@ -284,12 +349,13 @@ app.post(
       });
 
     } catch (error) {
+
       console.error(
         "Erreur upload :",
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
         error:
           "Impossible de recevoir le fichier."
       });
@@ -297,9 +363,14 @@ app.post(
   }
 );
 
-app.listen(PORT, () => {
+// =========================
+// DÉMARRAGE DU SERVEUR
+// =========================
+
+app.listen(PORT, "0.0.0.0", () => {
+
   console.log(
-    `KHALIL CRÉATION IA démarré sur le port ${PORT}`
+    `🌍 KHALIL CRÉATION IA démarré sur le port ${PORT}`
   );
 
   console.log(
@@ -309,4 +380,5 @@ app.listen(PORT, () => {
   console.log(
     `Clé Groq configurée : ${Boolean(GROQ_API_KEY)}`
   );
+
 });
