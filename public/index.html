@@ -287,6 +287,7 @@ const messageInput =
 
 const fileInfo =
   document.getElementById("fileInfo");
+  const conversationHistory = [];
 
 
 function addMessage(text, type) {
@@ -354,11 +355,10 @@ async function sendMessage() {
               "application/json"
           },
 
-          body: JSON.stringify({
-            message: message
-          })
-        }
-      );
+         body: JSON.stringify({
+  message: message,
+  messages: conversationHistory
+})
 
 
     const data =
@@ -384,6 +384,16 @@ async function sendMessage() {
       data.answer,
       "assistant"
     );
+    conversationHistory.push(
+  {
+    role: "user",
+    content: message
+  },
+  {
+    role: "assistant",
+    content: data.answer
+  }
+);
 
 
   } catch (error) {
