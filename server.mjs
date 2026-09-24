@@ -1,226 +1,312 @@
 import express from "express";
 import dotenv from "dotenv";
-import OpenAI from "openai";
 import path from "path";
+import fs from "fs";
+import multer from "multer";
 import { fileURLToPath } from "url";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
+
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const publicPath = path.join(__dirname, "public");
 
-app.disable("x-powered-by");
+const uploadDir = path.join(__dirname, "uploads");
 
-app.use(express.json({ limit: "32kb" }));
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-// Sécurité
-app.use((req, res, next) => {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader(
-    "Referrer-Policy",
-    "strict-origin-when-cross-origin"
-  );
-  next();
+const upload = multer({
+  dest: uploadDir,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  }
 });
 
-// Fichiers du site
-app.use(express.static(publicPath, {
-  index: false,
-  dotfiles: "deny"
-}));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(uploadDir));
 
-// Accueil
 app.get("/", (req, res) => {
-  res.sendFile(path.join(publicPath, "index.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Vérification API
-app.get("/api/status", (req, res) => {
-  res.status(200).json({
-    status: "online",
-    name: "KHALIL CRÉATION IA"
+app.get("/api/health", (req, res) => {
+  res.json({
+    ok: true,
+    groq_configured: Boolean(GROQ_API_KEY),
+    model: GROQ_MODEL
   });
 });
 
-// Clé OpenAI
-if (!process.env.GROQ_API_KEY) {
-  console.error("GROQ_API_KEY est absente.");
-  process.exit(1);
-}
-
-const client = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY
-});
-
-const MODEL = process.env.OPENAI_MODEL || "gpt-5.6-luna";
-
-// Instructions de l'assistant
-const instructions = `
-Tu es KHALIL CRÉATION IA, un assistant intelligent généraliste.
-
-Tu aides les utilisateurs dans :
-
-- études
-- exposés
-- présentations
-- PowerPoint
-- révisions
-- mathématiques
-- sciences
-- informatique
-- programmation
-- intelligence artificielle
-- géomatique
-- SIG
-- QGIS
-- cartographie
-- télédétection
-- climatologie
-- environnement
-- agriculture
-- commerce international
-- entrepreneuriat
-- marketing
-- économie
-- finance
-- recherche
-- CV
-- lettres de motivation
-- emploi
-- stages
-- rédaction
-- correction du français
-- traduction
-- documents
-- vie quotidienne
-
-Pour un exposé, aide l'utilisateur avec :
-- introduction
-- problématique
-- objectifs
-- plan
-- développement
-- exemples
-- conclusion
-- questions possibles à l'oral
-- réponses aux questions
-
-Pour les cours, explique simplement, étape par étape.
-
-Pour la programmation, donne du code clair et explique où le placer.
-
-Pour la géomatique, le SIG, QGIS, la cartographie et la télédétection,
-donne des explications pratiques et adaptées aux étudiants.
-
-Pour le Sénégal, utilise le contexte sénégalais lorsque cela est pertinent.
-
-Ne fabrique jamais une information présentée comme certaine.
-Si tu n'es pas sûr, précise-le.
-
-Réponds principalement en français.
-
-Sois clair, professionnel, pédagogique et utile.
-`;
-
-// Anti-spam
-const requests = new Map();
-
-function antiSpam(req, res, next) {
-  const ip = req.ip || "unknown";
-  const now = Date.now();
-
-  let history = requests.get(ip) || [];
-
-  history = history.filter(
-    time => now - time < 60000
-  );
-
-  if (history.length >= 15) {
-    return res.status(429).json({
-      error: "Trop de demandes. Veuillez patienter."
-    });
-  }
-
-  history.push(now);
-  requests.set(ip, history);
-
-  next();
-}
-
-// Chat
-app.post("/api/chat", antiSpam, async (req, res) => {
+app.post("/api/chat", async (req, res) => {
   try {
-    const message = req.body?.message;
-
-    if (typeof message !== "string") {
-      return res.status(400).json({
-        error: "Message invalide."
+    if (!GROQ_API_KEY) {
+      return res.status(500).json({
+        error: "La clé GROQ_API_KEY n'est pas configurée dans Render."
       });
     }
 
-    const text = message.trim();
+    const message = String(req.body?.message || "").trim();
 
-    if (!text) {
+    if (!message) {
       return res.status(400).json({
         error: "Veuillez écrire un message."
       });
     }
 
-    if (text.length > 6000) {
-      return res.status(413).json({
-        error: "Message trop long."
-      });
-    }
+    const systemPrompt = `
+Tu es KHALIL CRÉATION IA 🇸🇳, un assistant intelligent destiné principalement
+aux utilisateurs du Sénégal et d'Afrique.
 
-    const response = await client.responses.create({
-      model: MODEL,
-      instructions,
-      input: text,
-      max_output_tokens: 1800
-    });
+Tu réponds en français simple, clair et naturel.
 
-    const reply = String(
-      response.output_text || ""
-    ).trim();
+Tu peux aider dans les domaines suivants :
 
-    if (!reply) {
+ÉDUCATION :
+- mathématiques
+- physique
+- chimie
+- SVT
+- histoire
+- géographie
+- français
+- anglais
+- philosophie
+- économie
+- comptabilité
+- gestion
+- préparation aux examens et concours
+
+ENVIRONNEMENT :
+- environnement
+- développement durable
+- pollution
+- gestion des déchets
+- biodiversité
+- changements climatiques
+- agriculture durable
+- ressources naturelles
+
+GÉOMATIQUE :
+- SIG
+- cartographie
+- topographie
+- GPS
+- télédétection
+- analyse spatiale
+- géographie
+- climatologie
+
+INFORMATIQUE :
+- programmation
+- Python
+- JavaScript
+- HTML
+- CSS
+- développement web
+- bases de données
+- GitHub
+- API
+- intelligence artificielle
+
+EMPLOI :
+- CV
+- lettres de motivation
+- recherche d'emploi
+- préparation aux entretiens
+- stages
+- orientation professionnelle
+
+ENTREPRENEURIAT :
+- création d'entreprise
+- business plan
+- marketing
+- commerce
+- gestion
+- communication
+- commerce international
+
+AGRICULTURE :
+- agriculture
+- élevage
+- irrigation
+- sols
+- cultures
+- agriculture durable
+
+RÉDACTION :
+- exposés
+- rapports
+- résumés
+- dissertations
+- lettres
+- emails
+- messages
+- correction de textes
+- traduction
+
+DONNÉES :
+- statistiques
+- calculs
+- pourcentages
+- tableaux
+- analyse de données
+
+SANTÉ :
+Donne uniquement des informations générales.
+Ne pose jamais de diagnostic définitif.
+Pour les situations graves, recommande de consulter un professionnel.
+
+DROIT :
+Donne uniquement des informations générales.
+Ne prétends jamais être avocat.
+
+RÈGLES :
+- Explique simplement.
+- Si l'utilisateur est débutant, explique étape par étape.
+- Ne fabrique jamais une information.
+- Si tu ne connais pas quelque chose, dis-le clairement.
+- Adapte les réponses au contexte sénégalais lorsque c'est pertinent.
+- Ne demande jamais un mot de passe ou une clé API.
+`;
+
+    const response = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: GROQ_MODEL,
+          messages: [
+            {
+              role: "system",
+              content: systemPrompt
+            },
+            {
+              role: "user",
+              content: message
+            }
+          ],
+          temperature: 0.7,
+          max_completion_tokens: 1500
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Erreur Groq :", JSON.stringify(data));
       return res.status(502).json({
-        error: "Aucune réponse générée."
+        error: "Groq n'a pas pu répondre."
       });
     }
+
+    const answer =
+      data?.choices?.[0]?.message?.content?.trim() ||
+      "Je n'ai pas reçu de réponse.";
 
     res.json({
-      reply
+      answer: answer
     });
 
   } catch (error) {
-    console.error("Erreur API :", error);
+    console.error("Erreur serveur :", error);
 
     res.status(500).json({
-      error: "KHALIL CRÉATION IA ne peut pas répondre actuellement."
+      error: "Une erreur est survenue sur KHALIL CRÉATION IA."
     });
   }
 });
 
-// Route inconnue
-app.use((req, res) => {
-  if (req.path.startsWith("/api/")) {
-    return res.status(404).json({
-      error: "Route API introuvable."
-    });
+/* =========================
+   ENVOI DE FICHIERS
+   ========================= */
+
+app.post(
+  "/api/upload",
+  upload.single("file"),
+  (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          error: "Aucun fichier reçu."
+        });
+      }
+
+      const allowed = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/plain",
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+      ];
+
+      if (!allowed.includes(req.file.mimetype)) {
+        fs.unlinkSync(req.file.path);
+
+        return res.status(400).json({
+          error: "Type de fichier non pris en charge."
+        });
+      }
+
+      const extension = path.extname(req.file.originalname);
+
+      const finalPath = req.file.path + extension;
+
+      fs.renameSync(
+        req.file.path,
+        finalPath
+      );
+
+      const url =
+        "/uploads/" +
+        path.basename(finalPath);
+
+      res.json({
+        success: true,
+        filename: req.file.originalname,
+        type: req.file.mimetype,
+        size: req.file.size,
+        downloadUrl: url
+      });
+
+    } catch (error) {
+      console.error(
+        "Erreur upload :",
+        error
+      );
+
+      res.status(500).json({
+        error:
+          "Impossible de recevoir le fichier."
+      });
+    }
   }
+);
 
-  res.status(404).send("Page introuvable.");
-});
-
-// Démarrage
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log(
-    `🌍KHALIL🇸🇳CRÉATION🇸🇳IA démarré sur le port ${PORT}`
+    `KHALIL CRÉATION IA démarré sur le port ${PORT}`
+  );
+
+  console.log(
+    `Modèle Groq : ${GROQ_MODEL}`
+  );
+
+  console.log(
+    `Clé Groq configurée : ${Boolean(GROQ_API_KEY)}`
   );
 });
