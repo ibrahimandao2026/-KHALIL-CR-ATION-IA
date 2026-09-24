@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b7a75">
 
-  <title>🌍 KHALIL CRÉATION IA 🇸🇳</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>KHALIL CRÉATION IA 🇸🇳</title>
 
   <style>
     * {
@@ -15,457 +16,536 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f2f7f7;
+      background: #f4f6f8;
       color: #222;
     }
 
     header {
-      background: #0b7a75;
+      background: #111827;
       color: white;
+      padding: 20px;
       text-align: center;
-      padding: 20px 15px;
     }
 
     header h1 {
       margin: 0;
-      font-size: 23px;
+      font-size: 25px;
     }
 
     header p {
       margin: 7px 0 0;
       font-size: 14px;
+      opacity: 0.85;
     }
 
     .container {
-      max-width: 850px;
+      max-width: 900px;
       margin: auto;
       padding: 15px;
     }
 
-    .welcome {
+    #chat {
       background: white;
-      padding: 18px;
       border-radius: 15px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 15px;
+      min-height: 450px;
+      max-height: 65vh;
+      overflow-y: auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
 
-    .welcome h2 {
-      margin-top: 0;
+    .message {
+      margin: 10px 0;
+      padding: 12px 15px;
+      border-radius: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
     }
 
-    .suggestions {
+    .user {
+      background: #e0f2fe;
+      margin-left: 15%;
+    }
+
+    .assistant {
+      background: #f1f5f9;
+      margin-right: 15%;
+    }
+
+    .input-area {
+      margin-top: 15px;
+      background: white;
+      padding: 12px;
+      border-radius: 15px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      resize: vertical;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #111827;
+    }
+
+    .buttons {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 15px;
+      margin-top: 10px;
     }
 
-    .suggestions button {
+    button,
+    label {
       border: none;
-      background: #e3f1f0;
-      padding: 10px 13px;
-      border-radius: 20px;
+      border-radius: 10px;
+      padding: 11px 15px;
       cursor: pointer;
       font-size: 14px;
     }
 
-    #chat {
-      min-height: 300px;
-      max-height: 55vh;
-      overflow-y: auto;
-      background: white;
-      border-radius: 15px;
-      padding: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .message {
-      padding: 12px 14px;
-      border-radius: 15px;
-      margin-bottom: 10px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .user {
-      background: #d9eeee;
-      margin-left: 20px;
-    }
-
-    .bot {
-      background: #eeeeee;
-      margin-right: 20px;
-    }
-
-    .input-area {
-      margin-top: 12px;
-      background: white;
-      padding: 10px;
-      border-radius: 15px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    #message {
-      flex: 1;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      padding: 10px;
-      min-width: 0;
-    }
-
-    .action {
-      border: none;
-      border-radius: 50%;
-      width: 42px;
-      height: 42px;
-      cursor: pointer;
-      background: #0b7a75;
+    .send {
+      background: #111827;
       color: white;
-      font-size: 18px;
-      flex-shrink: 0;
     }
 
-    .file-button {
-      background: #555;
+    .file-btn {
+      background: #e5e7eb;
+      color: #111827;
     }
 
-    #fileInput {
+    .clear {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    input[type="file"] {
       display: none;
     }
 
-    #status {
-      text-align: center;
-      font-size: 13px;
-      margin-top: 8px;
-      color: #666;
-      min-height: 18px;
+    #fileInfo {
+      margin-top: 10px;
+      font-size: 14px;
     }
 
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 12px;
-      color: #777;
+    #fileInfo a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: bold;
     }
 
     @media (max-width: 600px) {
-
-      header h1 {
-        font-size: 19px;
-      }
 
       .container {
         padding: 10px;
       }
 
+      #chat {
+        min-height: 420px;
+      }
+
       .user {
-        margin-left: 10px;
+        margin-left: 5%;
       }
 
-      .bot {
-        margin-right: 10px;
+      .assistant {
+        margin-right: 5%;
       }
 
-      .suggestions button {
-        font-size: 13px;
+      header h1 {
+        font-size: 21px;
+      }
+
+      button,
+      label {
+        padding: 10px 12px;
       }
     }
   </style>
+
 </head>
 
 <body>
 
-  <header>
-    <h1>🌍 KHALIL 🇸🇳 CRÉATION 🇸🇳 IA</h1>
-    <p>Votre assistant intelligent sénégalais</p>
-  </header>
+<header>
 
-  <main class="container">
+  <h1>KHALIL CRÉATION IA 🇸🇳</h1>
 
-    <section class="welcome">
+  <p>Votre assistant intelligent</p>
 
-      <h2>Bonjour 👋</h2>
+</header>
 
-      <p>
-        Je suis <strong>KHALIL CRÉATION IA</strong>.
-        Je peux vous aider dans vos études, vos exposés,
-        vos recherches, la programmation, la géomatique,
-        les CV, les lettres de motivation et bien plus.
-      </p>
 
-      <div class="suggestions">
+<div class="container">
 
-        <button onclick="suggest('Fais-moi un plan d’exposé sur la géomatique')">
-          📚 Exposé
-        </button>
+  <div id="chat">
 
-        <button onclick="suggest('Aide-moi à préparer une présentation PowerPoint')">
-          📊 PowerPoint
-        </button>
+    <div class="message assistant">
 
-        <button onclick="suggest('Explique-moi la géomatique simplement')">
-          🌍 Géomatique
-        </button>
+      Bonjour 👋
 
-        <button onclick="suggest('Aide-moi à créer un CV professionnel')">
-          📄 CV
-        </button>
+      Je suis KHALIL CRÉATION IA.
 
-        <button onclick="suggest('Explique-moi Python pour débutant')">
-          💻 Python
-        </button>
+      Pose-moi ta question, je vais essayer de t'aider.
 
-        <button onclick="suggest('Aide-moi à rédiger une lettre de motivation')">
-          ✍️ Lettre
-        </button>
+    </div>
 
-      </div>
+  </div>
 
-    </section>
 
-    <section id="chat"></section>
+  <div class="input-area">
 
-    <div class="input-area">
+    <textarea
+      id="message"
+      placeholder="Écrivez votre question ici..."
+    ></textarea>
 
-      <button
-        class="action file-button"
-        onclick="document.getElementById('fileInput').click()"
-        title="Fichier"
-      >
-        📎
-      </button>
 
-      <input
-        type="file"
-        id="fileInput"
-        accept=".pdf,.txt,.jpg,.jpeg,.png,.webp"
-        onchange="fileSelected()"
-      >
+    <div class="buttons">
 
-      <input
-        id="message"
-        type="text"
-        placeholder="Écrivez votre message..."
-        autocomplete="off"
-        onkeydown="handleKey(event)"
-      >
+      <label class="file-btn">
+
+        📎 Fichier
+
+        <input
+          type="file"
+          id="fileInput"
+          accept=".pdf,.doc,.docx,.txt"
+        >
+
+      </label>
+
+
+      <label class="file-btn">
+
+        🖼️ Image
+
+        <input
+          type="file"
+          id="imageInput"
+          accept="image/jpeg,image/png,image/webp"
+        >
+
+      </label>
+
 
       <button
-        class="action"
-        onclick="startVoice()"
-        title="Microphone"
-      >
-        🎤
-      </button>
-
-      <button
-        class="action"
+        class="send"
+        type="button"
         onclick="sendMessage()"
-        title="Envoyer"
       >
-        ➤
+
+        Envoyer ➤
+
+      </button>
+
+
+      <button
+        class="clear"
+        type="button"
+        onclick="clearChat()"
+      >
+
+        🗑️ Effacer
+
       </button>
 
     </div>
 
-    <div id="status"></div>
 
-  </main>
+    <div id="fileInfo"></div>
 
-  <footer>
-    © 2026 KHALIL CRÉATION IA 🇸🇳
-  </footer>
+  </div>
 
-
-  <script>
-
-    const chat = document.getElementById("chat");
-    const messageInput = document.getElementById("message");
-    const statusText = document.getElementById("status");
+</div>
 
 
-    // Ajouter un message
-    function addMessage(text, type) {
+<script>
 
-      const div = document.createElement("div");
+const chat =
+  document.getElementById("chat");
 
-      div.className = "message " + type;
+const messageInput =
+  document.getElementById("message");
 
-      div.textContent = text;
-
-      chat.appendChild(div);
-
-      chat.scrollTop = chat.scrollHeight;
-    }
+const fileInfo =
+  document.getElementById("fileInfo");
 
 
-    // Boutons de suggestion
-    function suggest(text) {
+function addMessage(text, type) {
 
-      messageInput.value = text;
+  const div =
+    document.createElement("div");
 
-      messageInput.focus();
-    }
+  div.className =
+    "message " + type;
 
+  div.textContent =
+    text;
 
-    // Touche Entrée
-    function handleKey(event) {
+  chat.appendChild(div);
 
-      if (event.key === "Enter") {
-
-        event.preventDefault();
-
-        sendMessage();
-      }
-    }
+  chat.scrollTop =
+    chat.scrollHeight;
+}
 
 
-    // Envoyer un message
-    async function sendMessage() {
+async function sendMessage() {
 
-      const message = messageInput.value.trim();
+  const message =
+    messageInput.value.trim();
 
-      if (!message) {
-        return;
-      }
-
-      addMessage(message, "user");
-
-      messageInput.value = "";
-
-      statusText.textContent =
-        "KHALIL CRÉATION IA réfléchit...";
+  if (!message) {
+    return;
+  }
 
 
-      try {
+  addMessage(
+    message,
+    "user"
+  );
 
-        const response = await fetch("/api/chat", {
 
+  messageInput.value = "";
+
+
+  const loading =
+    document.createElement("div");
+
+  loading.className =
+    "message assistant";
+
+  loading.textContent =
+    "KHALIL CRÉATION IA réfléchit... 🤖";
+
+  chat.appendChild(loading);
+
+  chat.scrollTop =
+    chat.scrollHeight;
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/chat",
+        {
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type":
+              "application/json"
           },
 
           body: JSON.stringify({
             message: message
           })
-
-        });
-
-
-        const data = await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            data.error || "Erreur du serveur."
-          );
         }
+      );
 
 
-        addMessage(
-          data.reply,
-          "bot"
-        );
+    const data =
+      await response.json();
 
 
-      } catch (error) {
-
-        addMessage(
-          "❌ " + error.message,
-          "bot"
-        );
+    loading.remove();
 
 
-      } finally {
+    if (!response.ok) {
 
-        statusText.textContent = "";
-      }
+      addMessage(
+        data.error ||
+        "Une erreur est survenue.",
+        "assistant"
+      );
+
+      return;
     }
 
 
-    // Microphone
-    function startVoice() {
-
-      const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
-
-      if (!SpeechRecognition) {
-
-        alert(
-          "La reconnaissance vocale n'est pas disponible sur ce navigateur."
-        );
-
-        return;
-      }
-
-
-      const recognition =
-        new SpeechRecognition();
-
-
-      recognition.lang = "fr-FR";
-
-      recognition.interimResults = false;
-
-
-      recognition.start();
-
-
-      statusText.textContent =
-        "🎤 Je vous écoute...";
-
-
-      recognition.onresult = function(event) {
-
-        messageInput.value =
-          event.results[0][0].transcript;
-
-        statusText.textContent = "";
-      };
-
-
-      recognition.onerror = function() {
-
-        statusText.textContent =
-          "Impossible d'utiliser le microphone.";
-      };
-    }
-
-
-    // Sélection d'un fichier
-    function fileSelected() {
-
-      const file =
-        document.getElementById("fileInput").files[0];
-
-
-      if (file) {
-
-        statusText.textContent =
-          "📎 Fichier sélectionné : " +
-          file.name;
-      }
-    }
-
-
-    // Message de bienvenue
     addMessage(
-      "Bonjour 👋 Je suis KHALIL CRÉATION IA. Comment puis-je vous aider ?",
-      "bot"
+      data.answer,
+      "assistant"
     );
 
-  </script>
+
+  } catch (error) {
+
+    loading.remove();
+
+
+    addMessage(
+      "Impossible de contacter KHALIL CRÉATION IA. Vérifie que le serveur fonctionne correctement.",
+      "assistant"
+    );
+
+  }
+
+}
+
+
+async function sendFile(file) {
+
+  if (!file) {
+    return;
+  }
+
+
+  fileInfo.textContent =
+    "Envoi du fichier... ⏳";
+
+
+  const formData =
+    new FormData();
+
+
+  formData.append(
+    "file",
+    file
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/upload",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      fileInfo.textContent =
+        data.error ||
+        "Erreur lors de l'envoi.";
+
+      return;
+    }
+
+
+    fileInfo.innerHTML = `
+      📄 ${data.filename}
+      <br><br>
+      <a
+        href="${data.downloadUrl}"
+        target="_blank"
+        download
+      >
+        📥 Télécharger le fichier
+      </a>
+    `;
+
+
+    addMessage(
+      "📎 Fichier envoyé : " +
+      data.filename,
+      "user"
+    );
+
+
+    addMessage(
+      "Le fichier a bien été reçu par KHALIL CRÉATION IA.",
+      "assistant"
+    );
+
+
+  } catch (error) {
+
+    fileInfo.textContent =
+      "Impossible d'envoyer le fichier.";
+
+  }
+
+}
+
+
+document
+  .getElementById("fileInput")
+  .addEventListener(
+    "change",
+    function() {
+
+      sendFile(
+        this.files[0]
+      );
+
+      this.value = "";
+
+    }
+  );
+
+
+document
+  .getElementById("imageInput")
+  .addEventListener(
+    "change",
+    function() {
+
+      sendFile(
+        this.files[0]
+      );
+
+      this.value = "";
+
+    }
+  );
+
+
+function clearChat() {
+
+  chat.innerHTML = `
+
+    <div class="message assistant">
+
+      Bonjour 👋
+
+      Je suis KHALIL CRÉATION IA.
+
+      Comment puis-je vous aider ?
+
+    </div>
+
+  `;
+
+  fileInfo.textContent = "";
+
+}
+
+
+messageInput.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
+
+      event.preventDefault();
+
+      sendMessage();
+
+    }
+
+  }
+);
+
+</script>
 
 </body>
+
 </html>
