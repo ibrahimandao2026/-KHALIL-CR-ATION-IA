@@ -1,1 +1,11 @@
-
+{
+  "name": "KHALIL CRÉATION IA",
+  "short_name": "KHALIL IA",
+  "description": "Assistant intelligent sénégalais",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f2f7f7",
+  "theme_color": "#0b7a75",
+  "lang": "fr",
+  "icons": []
+}
