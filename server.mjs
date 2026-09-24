@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,59 +25,59 @@ app.use((req, res, next) => {
     "Referrer-Policy",
     "strict-origin-when-cross-origin"
   );
-
-  if (req.path.startsWith("/api/")) {
-    res.setHeader("Cache-Control", "no-store");
-  }
-
   next();
 });
 
 // Fichiers du site
-app.use(
-  express.static(publicPath, {
-    index: false,
-    dotfiles: "deny"
-  })
-);
+app.use(express.static(publicPath, {
+  index: false,
+  dotfiles: "deny"
+}));
 
-// Page principale
+// Accueil
 app.get("/", (req, res) => {
   res.sendFile(path.join(publicPath, "index.html"));
 });
 
-// Vérification de la clé API
+// Vérification API
+app.get("/api/status", (req, res) => {
+  res.status(200).json({
+    status: "online",
+    name: "KHALIL CRÉATION IA"
+  });
+});
+
+// Clé OpenAI
 if (!process.env.OPENAI_API_KEY) {
   console.error("OPENAI_API_KEY est absente.");
   process.exit(1);
 }
 
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  timeout: 60000,
-  maxRetries: 1
+  apiKey: process.env.OPENAI_API_KEY
 });
 
-// Modèle
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.6-luna";
 
-// Instructions de KHALIL CRÉATION IA
+// Instructions de l'assistant
 const instructions = `
 Tu es KHALIL CRÉATION IA, un assistant intelligent généraliste.
 
-Tu aides l'utilisateur dans :
+Tu aides les utilisateurs dans :
 
-- études et apprentissage
-- exposés et présentations
+- études
+- exposés
+- présentations
 - PowerPoint
-- résumés et révisions
+- révisions
 - mathématiques
 - sciences
 - informatique
 - programmation
 - intelligence artificielle
 - géomatique
-- SIG et QGIS
+- SIG
+- QGIS
 - cartographie
 - télédétection
 - climatologie
@@ -86,49 +86,49 @@ Tu aides l'utilisateur dans :
 - commerce international
 - entrepreneuriat
 - marketing
-- gestion
 - économie
 - finance
 - recherche
 - CV
 - lettres de motivation
-- recherche d'emploi et de stage
-- rédaction professionnelle
+- emploi
+- stages
+- rédaction
 - correction du français
-- documents administratifs
 - traduction
+- documents
 - vie quotidienne
 
-Pour les exposés :
+Pour un exposé, aide l'utilisateur avec :
+- introduction
+- problématique
+- objectifs
+- plan
+- développement
+- exemples
+- conclusion
+- questions possibles à l'oral
+- réponses aux questions
 
-1. Propose une introduction.
-2. Présente un plan clair.
-3. Développe chaque partie.
-4. Ajoute des exemples.
-5. Propose une conclusion.
-6. Prépare éventuellement des questions/réponses pour l'oral.
-7. Adapte le niveau au niveau scolaire ou universitaire demandé.
+Pour les cours, explique simplement, étape par étape.
 
-Pour les sujets techniques :
+Pour la programmation, donne du code clair et explique où le placer.
 
-Explique progressivement, simplement et avec des exemples.
-Pour le code, donne du code propre et explique où le placer.
+Pour la géomatique, le SIG, QGIS, la cartographie et la télédétection,
+donne des explications pratiques et adaptées aux étudiants.
 
-Pour les sujets concernant le Sénégal, utilise un contexte sénégalais lorsque cela est pertinent.
+Pour le Sénégal, utilise le contexte sénégalais lorsque cela est pertinent.
 
-Si une information n'est pas certaine, indique-le clairement.
-Ne fabrique pas de sources ou de statistiques.
+Ne fabrique jamais une information présentée comme certaine.
+Si tu n'es pas sûr, précise-le.
 
-Réponds principalement en français, sauf si l'utilisateur demande une autre langue.
+Réponds principalement en français.
 
-Sois clair, utile, professionnel et pédagogique.
+Sois clair, professionnel, pédagogique et utile.
 `;
 
-// Anti-spam simple
+// Anti-spam
 const requests = new Map();
-
-const MAX_REQUESTS = 15;
-const WINDOW = 60 * 1000;
 
 function antiSpam(req, res, next) {
   const ip = req.ip || "unknown";
@@ -137,13 +137,12 @@ function antiSpam(req, res, next) {
   let history = requests.get(ip) || [];
 
   history = history.filter(
-    (time) => now - time < WINDOW
+    time => now - time < 60000
   );
 
-  if (history.length >= MAX_REQUESTS) {
+  if (history.length >= 15) {
     return res.status(429).json({
-      error:
-        "Trop de demandes. Veuillez patienter quelques instants."
+      error: "Trop de demandes. Veuillez patienter."
     });
   }
 
@@ -153,7 +152,7 @@ function antiSpam(req, res, next) {
   next();
 }
 
-// CHAT
+// Chat
 app.post("/api/chat", antiSpam, async (req, res) => {
   try {
     const message = req.body?.message;
@@ -174,14 +173,13 @@ app.post("/api/chat", antiSpam, async (req, res) => {
 
     if (text.length > 6000) {
       return res.status(413).json({
-        error:
-          "Votre message est trop long. Maximum : 6000 caractères."
+        error: "Message trop long."
       });
     }
 
     const response = await client.responses.create({
       model: MODEL,
-      instructions: instructions,
+      instructions,
       input: text,
       max_output_tokens: 1800
     });
@@ -192,67 +190,37 @@ app.post("/api/chat", antiSpam, async (req, res) => {
 
     if (!reply) {
       return res.status(502).json({
-        error:
-          "KHALIL CRÉATION IA n'a pas pu générer une réponse."
+        error: "Aucune réponse générée."
       });
     }
 
     res.json({
-      reply: reply
+      reply
     });
 
   } catch (error) {
-    console.error("Erreur OpenAI :", error);
+    console.error("Erreur API :", error);
 
     res.status(500).json({
-      error:
-        "KHALIL CRÉATION IA n'a pas pu répondre pour le moment."
+      error: "KHALIL CRÉATION IA ne peut pas répondre actuellement."
     });
   }
 });
 
-// STATUT
-app.get("/api/status", (req, res) => {
-  res.json({
-    status: "online",
-    name: "KHALIL CRÉATION IA",
-    version: "2.0",
-    features: [
-      "chat",
-      "exposes",
-      "education",
-      "powerpoint",
-      "presentation",
-      "programmation",
-      "geospatial",
-      "environnement",
-      "emploi",
-      "documents",
-      "resumes",
-      "revisions"
-    ]
-  });
-});
-
-// Route API inexistante
-app.use((req, res, next) => {
+// Route inconnue
+app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({
       error: "Route API introuvable."
     });
   }
 
-  next();
-});
-
-// Page inexistante
-app.use((req, res) => {
   res.status(404).send("Page introuvable.");
 });
 
 // Démarrage
 app.listen(PORT, "0.0.0.0", () => {
   console.log(
-    `KHALIL CRÉATION IA est lancé sur le port ${PORT}`
+    `🌍KHALIL🇸🇳CRÉATION🇸🇳IA démarré sur le port ${PORT}`
   );
 });
