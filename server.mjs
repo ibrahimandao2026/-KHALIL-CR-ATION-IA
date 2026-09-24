@@ -80,6 +80,7 @@ app.get("/api/health", (req, res) => {
 // =========================
 
 app.post("/api/chat", async (req, res) => {
+  const messages = req.body?.messages || [];
   try {
     if (!GROQ_API_KEY) {
       return res.status(500).json({
@@ -229,14 +230,15 @@ RÈGLES :
           model: GROQ_MODEL,
 
           messages: [
-            {
-              role: "system",
-              content: systemPrompt
-            },
-            {
-              role: "user",
-              content: message
-            }
+  {
+    role: "system",
+    content: systemPrompt
+  },
+  ...messages,
+  {
+    role: "user",
+    content: message
+  }
           ],
 
           temperature: 0.7,
