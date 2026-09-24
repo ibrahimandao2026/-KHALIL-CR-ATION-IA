@@ -1,62 +1,429 @@
-<!doctype html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>🌍KHALIl🇸🇳CRÉATION🇸🇳IA</title>
-<style>
-body{font-family:Arial,sans-serif;background:#f4f7f5;margin:0;color:#172033}
-main{max-width:850px;margin:auto;padding:20px}
-header{background:#087f55;color:#fff;padding:25px;border-radius:20px}
-h1{margin:0}.sub{opacity:.9;margin-top:7px}
-.card{background:#fff;padding:18px;border-radius:18px;margin-top:16px;box-shadow:0 5px 20px #0001}
-#chat{min-height:280px;display:flex;flex-direction:column;gap:10px}
-.b{padding:12px 14px;border-radius:15px;max-width:85%;white-space:pre-wrap;line-height:1.45}
-.ai{background:#edf7f2;align-self:flex-start}.me{background:#eaf0ff;align-self:flex-end}
-.row{display:flex;gap:8px;margin-top:15px}input{flex:1;padding:13px;border:1px solid #dce2e8;border-radius:12px;font-size:16px}
-button{border:0;border-radius:12px;padding:12px 16px;background:#087f55;color:#fff;font-weight:700;cursor:pointer}
-.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.quick button{background:#eef2f4;color:#233}
-small{color:#687386}
-</style>
- <style>
-  body {
-    background-image:
-      linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
-      url("fond.jpg");
+  <meta charset="UTF-8">
 
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-  }
- </style>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#0b7a75"
+  >
+
+  <meta
+    name="description"
+    content="KHALIL CRÉATION IA - Assistant intelligent sénégalais"
+  >
+
+  <link
+    rel="manifest"
+    href="/manifest.json"
+  >
+
+  <title>KHALIL CRÉATION IA 🇸🇳</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f7f7;
+      color: #222;
+    }
+
+    header {
+      background: #0b7a75;
+      color: white;
+      padding: 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 15px;
+    }
+
+    .welcome {
+      background: white;
+      padding: 18px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .suggestions button {
+      border: none;
+      background: #e3f1f0;
+      padding: 9px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    #chat {
+      min-height: 300px;
+      max-height: 55vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .message {
+      padding: 11px 14px;
+      border-radius: 15px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      background: #d9eeee;
+      margin-left: 20px;
+    }
+
+    .bot {
+      background: #f0f0f0;
+      margin-right: 20px;
+    }
+
+    .input-area {
+      margin-top: 12px;
+      background: white;
+      padding: 10px;
+      border-radius: 15px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    #message {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .action {
+      border: none;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      cursor: pointer;
+      background: #0b7a75;
+      color: white;
+      font-size: 18px;
+    }
+
+    .file-button {
+      background: #555;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 8px;
+      color: #666;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
 </head>
+
 <body>
-<main>
-<header><h1>🌍KHALIL🇸🇳CRÉATION🇸🇳IA</h1><div class="sub">Ton assistant intelligent pensé pour le Sénégal.</div></header>
-<section class="card"><div id="chat"><div class="b ai">Bonjour 👋🏾je suis KHALIL bienvenue dans mon site🙏. Que puis-je faire pour vous aider.</div></div>
-<div class="row"><input id="msg" placeholder="Écris ta question..."><button onclick="send()">Envoyer</button></div>
-<div class="quick">
-<button onclick="quick('Aide-moi à créer un CV professionnel.')">📄 CV</button>
-<button onclick="quick('Écris une lettre de motivation pour un stage.')">✉️ Lettre</button>
-<button onclick="quick('Comment préparer un entretien d’embauche ?')">🎯 Entretien</button>
-</div><br><small>La clé API reste sur le serveur et n'est jamais envoyée au navigateur.</small>
-</section>
-</main>
+
+<header>
+  <h1>🌍 KHALIL 🇸🇳 CRÉATION 🇸🇳 IA</h1>
+  <p>Votre assistant intelligent</p>
+</header>
+
+<div class="container">
+
+  <div class="welcome">
+    <strong>Bonjour 👋</strong>
+
+    <p>
+      Je peux vous aider pour vos études, exposés,
+      programmation, géomatique, QGIS, CV, recherches
+      et beaucoup d'autres domaines.
+    </p>
+
+    <div class="suggestions">
+      <button onclick="suggest('Fais-moi un plan d’exposé sur la géomatique')">
+        📚 Exposé
+      </button>
+
+      <button onclick="suggest('Explique-moi la géomatique simplement')">
+        🌍 Géomatique
+      </button>
+
+      <button onclick="suggest('Aide-moi à créer un CV')">
+        📄 CV
+      </button>
+
+      <button onclick="suggest('Explique-moi Python pour débutant')">
+        💻 Python
+      </button>
+    </div>
+  </div>
+
+  <div id="chat"></div>
+
+  <div class="input-area">
+
+    <button
+      class="action file-button"
+      onclick="document.getElementById('fileInput').click()"
+      title="Fichier"
+    >
+      📎
+    </button>
+
+    <input
+      type="file"
+      id="fileInput"
+      onchange="fileSelected()"
+    >
+
+    <input
+      id="message"
+      type="text"
+      placeholder="Écrivez votre message..."
+      autocomplete="off"
+      onkeydown="handleKey(event)"
+    >
+
+    <button
+      class="action"
+      onclick="startVoice()"
+      title="Microphone"
+    >
+      🎤
+    </button>
+
+    <button
+      class="action"
+      onclick="sendMessage()"
+      title="Envoyer"
+    >
+      ➤
+    </button>
+
+  </div>
+
+  <div
+    id="status"
+    class="status"
+  >
+  </div>
+
+</div>
+
+<footer>
+  KHALIL CRÉATION IA 🇸🇳
+</footer>
+
 <script>
-const input=document.getElementById('msg'), chat=document.getElementById('chat');
-function add(t,c){const d=document.createElement('div');d.className='b '+c;d.textContent=t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
-async function send(){
- const q=input.value.trim(); if(!q)return;
- add(q,'me');input.value='';
- add('SUNU AI réfléchit…','ai'); const loading=chat.lastChild;
- try{
-   const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q})});
-   const data=await r.json(); loading.remove(); add(data.reply||data.error||'Erreur.','ai');
- }catch(e){loading.remove();add('Erreur de connexion au serveur.','ai')}
+
+const chat = document.getElementById("chat");
+const messageInput = document.getElementById("message");
+const statusText = document.getElementById("status");
+
+function addMessage(text, type) {
+
+  const div = document.createElement("div");
+
+  div.className = "message " + type;
+
+  div.textContent = text;
+
+  chat.appendChild(div);
+
+  chat.scrollTop = chat.scrollHeight;
 }
-function quick(q){input.value=q;send()}
-input.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+
+function suggest(text) {
+
+  messageInput.value = text;
+
+  messageInput.focus();
+}
+
+function handleKey(event) {
+
+  if (event.key === "Enter") {
+    sendMessage();
+  }
+}
+
+async function sendMessage() {
+
+  const message = messageInput.value.trim();
+
+  if (!message) return;
+
+  addMessage(message, "user");
+
+  messageInput.value = "";
+
+  statusText.textContent = "KHALIL CRÉATION IA réfléchit...";
+
+  try {
+
+    const response = await fetch("/api/chat", {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        message: message
+      })
+
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || "Erreur serveur"
+      );
+    }
+
+    addMessage(
+      data.reply,
+      "bot"
+    );
+
+  } catch (error) {
+
+    addMessage(
+      "❌ " + error.message,
+      "bot"
+    );
+
+  } finally {
+
+    statusText.textContent = "";
+
+  }
+}
+
+function startVoice() {
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+
+    alert(
+      "La reconnaissance vocale n'est pas disponible sur ce navigateur."
+    );
+
+    return;
+  }
+
+  const recognition =
+    new SpeechRecognition();
+
+  recognition.lang = "fr-FR";
+
+  recognition.interimResults = false;
+
+  recognition.start();
+
+  statusText.textContent =
+    "🎤 Je vous écoute...";
+
+  recognition.onresult = function(event) {
+
+    messageInput.value =
+      event.results[0][0].transcript;
+
+    statusText.textContent = "";
+
+  };
+
+  recognition.onerror = function() {
+
+    statusText.textContent =
+      "Impossible d'utiliser le microphone.";
+
+  };
+}
+
+function fileSelected() {
+
+  const file =
+    document.getElementById("fileInput").files[0];
+
+  if (file) {
+
+    statusText.textContent =
+      "📎 Fichier sélectionné : " + file.name +
+      ". L'analyse des fichiers sera ajoutée dans la prochaine version.";
+
+  }
+}
+
+// Service Worker
+if ("serviceWorker" in navigator) {
+
+  window.addEventListener("load", () => {
+
+    navigator.serviceWorker.register(
+      "/service-worker.js"
+    ).catch(() => {});
+
+  });
+
+}
+
+addMessage(
+  "Bonjour 👋 Je suis KHALIL CRÉATION IA. Comment puis-je vous aider ?",
+  "bot"
+);
+
 </script>
+
 </body>
 </html>
